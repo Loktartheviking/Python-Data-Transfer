@@ -13,12 +13,20 @@ engine2 = create_engine('mssql+pyodbc://Server\\Typeofinstance/Database?driver=O
 inspection = inspect(engine)
 inspection2 = inspect(engine2)
 
-#Query to retrieve data from the first database (Test)
+#Query to retrieve data from the first database
 with engine.connect() as conn:
     rtrv = """SELECT * FROM Datatablename"""
     result_df = pd.read_sql(rtrv, conn)
-    print(result_df)
-
+    #To print the dataframe extracted from the database for testing purposes
+    #print(result_df)
+    conn.close()
+#Adding the retrieved data to the second database
+with engine2.connect() as conn2:
+  result_df.to_sql(name = "Datatablename", con=conn2, if_exists='replace', index=False)
+  final_df = pd.read_sql("""SELECT * FROM Datatablename2""", conn2) 
+  #To print the final dataframe after transfer for testing purposes 
+  #print(final_df)
+  conn2.close()
 
 #Closes connections to both databases
 engine.dispose()
